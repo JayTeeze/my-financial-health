@@ -27,5 +27,8 @@ public interface IncomeRepo extends JpaRepository<Income, Integer> {
 	@Modifying
 	@Query("DELETE Income I WHERE I.id = ?1")
 	void deleteIncome(Integer id);
+	
+	@Query("SELECT SUM(amount) FROM Income")
+	Long incomeTotal();
 
 }

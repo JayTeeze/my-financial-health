@@ -24,5 +24,8 @@ public interface AssetRepo extends JpaRepository<Asset, Integer> {
 	@Modifying
 	@Query("DELETE Asset A WHERE A.id = ?1")
 	void deleteAsset(Integer id);
+	
+	@Query("SELECT SUM(amount) FROM Asset")
+	Long assetTotal();
 
 }

@@ -24,5 +24,8 @@ public interface LiabilityRepo extends JpaRepository<Liability, Integer> {
 	@Modifying
 	@Query("DELETE Liability L WHERE L.id = ?1")
 	void deleteLiability(Integer id);
+	
+	@Query("SELECT SUM(amount) FROM Liability")
+	Long liabilityTotal();
 
 }

@@ -70,12 +70,24 @@ public class AppController {
 			 produces=MediaType.APPLICATION_JSON_VALUE,
 			 method= RequestMethod.POST)
 	private ResponseEntity<User> login(@RequestBody Credential creds) {
-		User account = credentialRepo.authenticate(creds.getEmail(), creds.getPassword()).getUser();
-		if (account != null) {
+		// '.getUser()' is used to get user data
+		creds = credentialRepo.authenticate(creds.getEmail(), creds.getPassword());
+		
+		if (creds != null) {
+			User account = creds.getUser();
 			return new ResponseEntity<>(account, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
+	}
+	
+	@RequestMapping(value="/findAllCreds", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET)
+	@ResponseBody
+	private ResponseEntity<List<Credential>> findAllCreds() {
+		List<Credential> credentials = credentialRepo.findAll();
+		return new ResponseEntity<>(credentials, HttpStatus.OK);
 	}
 	
 	// ---------- User data servlets ----------
@@ -123,6 +135,24 @@ public class AppController {
 	@ResponseBody
 	private void deleteSelectedAsset(Integer id) {
 		assetRepo.deleteById(id);
+	}
+	
+	@RequestMapping(value="/findAllAssets", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET)
+	@ResponseBody
+	private ResponseEntity<List<Asset>> findAllAssets() {
+		List<Asset> assets = assetRepo.findAll();
+		return new ResponseEntity<>(assets, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/sumAssetValues", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET)
+	@ResponseBody
+	private ResponseEntity<Long> assetTotal() {
+		Long assetSum = assetRepo.assetTotal();
+		return new ResponseEntity<>(assetSum, HttpStatus.OK);
 	}
 	
 	// ---------- Balance snapshot servlets ----------
@@ -205,6 +235,24 @@ public class AppController {
 		expenseRepo.deleteById(id);
 	}
 	
+	@RequestMapping(value="/findAllExpenses", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET)
+	@ResponseBody
+	private ResponseEntity<List<Expense>> findAllExpenses() {
+		List<Expense> expenses = expenseRepo.findAll();
+		return new ResponseEntity<>(expenses, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/sumExpenseValues", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET)
+	@ResponseBody
+	private ResponseEntity<Long> expenseTotal() {
+		Long expenseSum = expenseRepo.expenseTotal();
+		return new ResponseEntity<>(expenseSum, HttpStatus.OK);
+	}
+	
 	// ---------- Income servlets ----------
 	
 	@RequestMapping(value="/createIncomeEntry", 
@@ -249,6 +297,24 @@ public class AppController {
 		incomeRepo.deleteById(id);
 	}
 	
+	@RequestMapping(value="/findAllIncome", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET)
+	@ResponseBody
+	private ResponseEntity<List<Income>> findAllIncome() {
+		List<Income> incomes = incomeRepo.findAll();
+		return new ResponseEntity<>(incomes, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/sumIncomeValues", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET)
+	@ResponseBody
+	private ResponseEntity<Long> incomeTotal() {
+		Long incomeSum = incomeRepo.incomeTotal();
+		return new ResponseEntity<>(incomeSum, HttpStatus.OK);
+	}
+	
 	// ---------- Liability servlets ----------
 	
 	@RequestMapping(value="/createLiabilityEntry", 
@@ -282,6 +348,24 @@ public class AppController {
 	@ResponseBody
 	private void deleteSelectedLiability(Integer id) {
 		liabilityRepo.deleteById(id);
+	}
+	
+	@RequestMapping(value="/findAllLiabilities", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET)
+	@ResponseBody
+	private ResponseEntity<List<Liability>> findAllLiabilities() {
+		List<Liability> liabilities = liabilityRepo.findAll();
+		return new ResponseEntity<>(liabilities, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/sumLiabilityValues", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET)
+	@ResponseBody
+	private ResponseEntity<Long> liabilityTotal() {
+		Long liabilitySum = liabilityRepo.liabilityTotal();
+		return new ResponseEntity<>(liabilitySum, HttpStatus.OK);
 	}
 
 }

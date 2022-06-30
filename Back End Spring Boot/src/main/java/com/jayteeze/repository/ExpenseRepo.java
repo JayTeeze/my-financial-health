@@ -27,5 +27,8 @@ public interface ExpenseRepo extends JpaRepository<Expense, Integer> {
 	@Modifying
 	@Query("DELETE Expense E WHERE E.id = ?1")
 	void deleteExpense(Integer id);
+	
+	@Query("SELECT SUM(amount) FROM Expense")
+	Long expenseTotal();
 
 }
