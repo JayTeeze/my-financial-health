@@ -1,36 +1,28 @@
 import { Box, Grid } from "@mui/material";
-import EnhancedTable from "./PageTable";
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useLocation } from "react-router-dom";
+import SummaryCard from "../component/Card/SummaryCard";
+import EnhancedTable from "../component/Table/PageTable";
+import * as React from 'react';
+import { useLocation } from 'react-router-dom';
+import { getRequest } from "../component/Service/APIClient";
 
 
 const PageLayout = () => {
-
-    const [financials, setFinancials] = useState([]);
-    const [apiMap, setApiMap] = useState({assets: 'findAllAssets', liabilities: 'findAllLiabilities', income: 'findAllIncome', expenses: 'findAllExpenses'});
-
-    let location = useLocation();
-    let path = location.pathname.replace('/', '');
-
-    const getRequest = (apiUrl, stateFunc) => {
-        axios.get(`http://localhost:8080/${apiUrl}`).then(response => {
-            stateFunc(response.data);
-        }).catch(error => {
-            console.log(error);
-        });
-    }
-
-    useEffect(() => {
-
-        getRequest(apiMap[path], setFinancials);
-    }, [path, financials.length]);
+    const [financialItems, setFinancialItems] = React.useState([]);
+    const catMap = {assets: 'asset', liabilities: 'liability', income: 'income', expenses: 'expense'};
+    let category = useLocation().pathname.replace('/', '');
+    
+    React.useEffect(() => {
+        getRequest(`/findUserFinancialsByCategory?id=1&category=${catMap[category]}`).then(res => setFinancialItems(res));
+    }, [category]);
 
     return(
         <Box sx={{ p:2 }}>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} direction={{ xs: "column-reverse", lg: "row" }} >
                 <Grid item xs={12} lg={6}>
-                    <EnhancedTable financials={financials} category={path.substring(0, 1).toUpperCase() + path.substring(1)} />
+                    <EnhancedTable category={category} financialItems={financialItems} setFinancialItems={setFinancialItems} />
+                </Grid>
+                <Grid item xs={2} lg={2}>
+                    <SummaryCard financialItems={financialItems} />
                 </Grid>
             </Grid>
         </Box>
