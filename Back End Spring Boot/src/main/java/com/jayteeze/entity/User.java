@@ -16,9 +16,17 @@ public class User {
 	private String lastName;
 	@Column(name="state")
 	private String state;
-	@Column(name="start_date")
-	private String startDate;
+	@Column(name="created_at")
+	private String createdAt;
 	
+	public String getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -49,14 +57,6 @@ public class User {
 	
 	public void setState(String state) {
 		this.state = state;
-	}
-	
-	public String getStartDate() {
-		return startDate;
-	}
-	
-	public void setStartDate(String startDate) {
-		this.startDate = startDate;
 	}
 
 }

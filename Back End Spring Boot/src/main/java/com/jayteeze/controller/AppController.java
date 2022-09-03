@@ -1,5 +1,6 @@
 package com.jayteeze.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,20 +14,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jayteeze.entity.Asset;
 import com.jayteeze.entity.BalanceSnapshot;
 import com.jayteeze.entity.Credential;
 import com.jayteeze.entity.DateRange;
-import com.jayteeze.entity.Expense;
-import com.jayteeze.entity.Income;
-import com.jayteeze.entity.Liability;
+import com.jayteeze.entity.Financial;
 import com.jayteeze.entity.User;
-import com.jayteeze.repository.AssetRepo;
 import com.jayteeze.repository.BalanceSnapshotRepo;
 import com.jayteeze.repository.CredentialRepo;
-import com.jayteeze.repository.ExpenseRepo;
-import com.jayteeze.repository.IncomeRepo;
-import com.jayteeze.repository.LiabilityRepo;
+import com.jayteeze.repository.FinancialRepo;
 import com.jayteeze.repository.UserRepo;
 
 @CrossOrigin
@@ -34,22 +29,13 @@ import com.jayteeze.repository.UserRepo;
 public class AppController {
 	
 	@Autowired
-	AssetRepo assetRepo;
+	FinancialRepo financialRepo;
 	
 	@Autowired
 	BalanceSnapshotRepo balanceSnapshotRepo;
 	
 	@Autowired
 	CredentialRepo credentialRepo;
-	
-	@Autowired
-	ExpenseRepo expenseRepo;
-	
-	@Autowired
-	IncomeRepo incomeRepo;
-	
-	@Autowired
-	LiabilityRepo liabilityRepo;
 	
 	@Autowired
 	UserRepo userRepo;
@@ -102,57 +88,85 @@ public class AppController {
 				updatedDetails.getId());
 	}
 	
-	// ---------- Asset servlets ----------
+	// ---------- Financial servlets ----------
 	
-	@RequestMapping(value="/createAssetEntry", 
+	@RequestMapping(value="/createFinancialEntry", 
 			 consumes=MediaType.APPLICATION_JSON_VALUE, 
 			 produces=MediaType.APPLICATION_JSON_VALUE,
 			 method= RequestMethod.POST)
-	private void submitAssetEntry(@RequestBody Asset asset) {
-		assetRepo.save(asset);
+	private void submitFinancialEntry(@RequestBody Financial financial) {
+		financialRepo.save(financial);
 	}
 	
-	@RequestMapping(value="/findAllUserAssets", 
+	@RequestMapping(value="/findAllUserFinancials", 
 			 produces=MediaType.APPLICATION_JSON_VALUE,
 			 method= RequestMethod.GET)
 	@ResponseBody
-	private ResponseEntity<List<Asset>> findAllUserAssets(Integer id) {
-		List<Asset> assets = assetRepo.findAllUserAssets(id);
-		return new ResponseEntity<>(assets, HttpStatus.OK);
+	private ResponseEntity<List<Financial>> findAllUserFinancials(Integer id) {
+		List<Financial> financials = financialRepo.findAllUserFinancials(id);
+		return new ResponseEntity<>(financials, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value="/updateAsset", 
+	@RequestMapping(value="/findUserFinancialsByCategory", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET,
+			 params={"id", "category"})
+	@ResponseBody
+	private ResponseEntity<List<Financial>> findUserFinancialsByCategory(Integer id, String category) {
+		List<Financial> financials = financialRepo.findUserFinancialsByCategory(id, category);
+		return new ResponseEntity<>(financials, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/findUserFinancialsByCategory", 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.GET,
+			 params={"id", "category", "limit"})
+	@ResponseBody
+	private ResponseEntity<List<Financial>> findUserFinancialsByCategory(Integer id, String category, Integer limit) {
+		List<Financial> financials = financialRepo.findUserFinancialsByCategory(id, category, limit);
+		return new ResponseEntity<>(financials, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/updateFinancial", 
 			 consumes=MediaType.APPLICATION_JSON_VALUE, 
 			 produces=MediaType.APPLICATION_JSON_VALUE,
 			 method= RequestMethod.POST)
-	private void updateAsset(@RequestBody Asset asset) {
-		assetRepo.updateAsset(asset.getDescription(), asset.getAmount(), asset.getId());
+	private void updateFinancial(@RequestBody Financial financial) {
+		financialRepo.updateFinancial(financial.getDescription(), financial.getAmount(), financial.getId());
 	}
 	
-	@RequestMapping(value="/deleteSelectedAsset", 
+	@RequestMapping(value="/deleteSelectedFinancial", 
 			 produces=MediaType.APPLICATION_JSON_VALUE,
 			 method= RequestMethod.GET)
 	@ResponseBody
-	private void deleteSelectedAsset(Integer id) {
-		assetRepo.deleteById(id);
+	private void deleteSelectedFinancial(Integer id) {
+		financialRepo.deleteById(id);
 	}
 	
-	@RequestMapping(value="/findAllAssets", 
+	@RequestMapping(value="/deleteSelectedFinancials", 
+			 consumes=MediaType.APPLICATION_JSON_VALUE, 
+			 produces=MediaType.APPLICATION_JSON_VALUE,
+			 method= RequestMethod.POST)
+	private void deleteSelectedFinancials(@RequestBody Integer[] ids) {
+		financialRepo.deleteFinancials(Arrays.asList(ids));
+	}
+	
+	@RequestMapping(value="/findAllFinancials", 
 			 produces=MediaType.APPLICATION_JSON_VALUE,
 			 method= RequestMethod.GET)
 	@ResponseBody
-	private ResponseEntity<List<Asset>> findAllAssets() {
-		List<Asset> assets = assetRepo.findAll();
-		return new ResponseEntity<>(assets, HttpStatus.OK);
+	private ResponseEntity<List<Financial>> findAllFinancials() {
+		List<Financial> financials = financialRepo.findAll();
+		return new ResponseEntity<>(financials, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value="/sumAssetValues", 
+	@RequestMapping(value="/sumFinancialValues", 
 			 produces=MediaType.APPLICATION_JSON_VALUE,
 			 method= RequestMethod.GET)
 	@ResponseBody
-	private ResponseEntity<Long> assetTotal() {
-		Long assetSum = assetRepo.assetTotal();
-		return new ResponseEntity<>(assetSum, HttpStatus.OK);
+	private ResponseEntity<Long> financialTotal() {
+		Long financialSum = financialRepo.financialTotal();
+		return new ResponseEntity<>(financialSum, HttpStatus.OK);
 	}
 	
 	// ---------- Balance snapshot servlets ----------
@@ -191,181 +205,4 @@ public class AppController {
 		balanceSnapshotRepo.updateSnapshot(snapshot.getAmount(), snapshot.getDate(), snapshot.getId());
 	}
 	
-	// ---------- Expense servlets ----------
-	
-	@RequestMapping(value="/createExpenseEntry", 
-			 consumes=MediaType.APPLICATION_JSON_VALUE, 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.POST)
-	private void submitExpenseEntry(@RequestBody Expense expense) {
-		expenseRepo.save(expense);
-	}
-	
-	@RequestMapping(value="/findAllUserExpenses", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private ResponseEntity<List<Expense>> findAllUserExpenses(Integer userId) {
-		List<Expense> expenses = expenseRepo.findAllUserExpenses(userId);
-		return new ResponseEntity<>(expenses, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value="/findUserExpensesInRange", 
-			 consumes=MediaType.APPLICATION_JSON_VALUE, 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.POST)
-	private ResponseEntity<List<Expense>> findUserExpensesInRange(@RequestBody DateRange range) {
-		List<Expense> expenses = expenseRepo.findUserExpensesInRange(range.getId(), range.getStartDate(), range.getEndDate());
-		return new ResponseEntity<>(expenses, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value="/updateExpense", 
-			 consumes=MediaType.APPLICATION_JSON_VALUE, 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.POST)
-	private void updateExpense(@RequestBody Expense expense) {
-		expenseRepo.updateExpense(expense.getDescription(), expense.getAmount(), expense.getDate(), expense.getId());
-	}
-	
-	@RequestMapping(value="/deleteSelectedExpense", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private void deleteSelectedExpense(Integer id) {
-		expenseRepo.deleteById(id);
-	}
-	
-	@RequestMapping(value="/findAllExpenses", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private ResponseEntity<List<Expense>> findAllExpenses() {
-		List<Expense> expenses = expenseRepo.findAll();
-		return new ResponseEntity<>(expenses, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value="/sumExpenseValues", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private ResponseEntity<Long> expenseTotal() {
-		Long expenseSum = expenseRepo.expenseTotal();
-		return new ResponseEntity<>(expenseSum, HttpStatus.OK);
-	}
-	
-	// ---------- Income servlets ----------
-	
-	@RequestMapping(value="/createIncomeEntry", 
-			 consumes=MediaType.APPLICATION_JSON_VALUE, 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.POST)
-	private void submitIncomeEntry(@RequestBody Income income) {
-		incomeRepo.save(income);
-	}
-	
-	@RequestMapping(value="/findAllUserIncome", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private ResponseEntity<List<Income>> findAllUserIncome(Integer userId) {
-		List<Income> income = incomeRepo.findAllUserIncome(userId);
-		return new ResponseEntity<>(income, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value="/findUserIncomeInRange", 
-			 consumes=MediaType.APPLICATION_JSON_VALUE, 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.POST)
-	private ResponseEntity<List<Income>> findUserIncomeInRange(@RequestBody DateRange range) {
-		List<Income> income = incomeRepo.findUserIncomeInRange(range.getId(), range.getStartDate(), range.getEndDate());
-		return new ResponseEntity<>(income, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value="/updateIncome", 
-			 consumes=MediaType.APPLICATION_JSON_VALUE, 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.POST)
-	private void updateIncome(@RequestBody Income income) {
-		incomeRepo.updateIncome(income.getDescription(), income.getAmount(), income.getDate(), income.getId());
-	}
-	
-	@RequestMapping(value="/deleteSelectedIncome", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private void deleteIncome(Integer id) {
-		incomeRepo.deleteById(id);
-	}
-	
-	@RequestMapping(value="/findAllIncome", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private ResponseEntity<List<Income>> findAllIncome() {
-		List<Income> incomes = incomeRepo.findAll();
-		return new ResponseEntity<>(incomes, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value="/sumIncomeValues", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private ResponseEntity<Long> incomeTotal() {
-		Long incomeSum = incomeRepo.incomeTotal();
-		return new ResponseEntity<>(incomeSum, HttpStatus.OK);
-	}
-	
-	// ---------- Liability servlets ----------
-	
-	@RequestMapping(value="/createLiabilityEntry", 
-			 consumes=MediaType.APPLICATION_JSON_VALUE, 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.POST)
-	private void submitLiabilityEntry(@RequestBody Liability liability) {
-		liabilityRepo.save(liability);
-	}
-	
-	@RequestMapping(value="/findAllUserLiabilities", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private ResponseEntity<List<Liability>> findAllUserLiabilities(Integer userId) {
-		List<Liability> liabilities = liabilityRepo.findAllUserLiabilities(userId);
-		return new ResponseEntity<>(liabilities, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value="/updateLiability", 
-			 consumes=MediaType.APPLICATION_JSON_VALUE, 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.POST)
-	private void updateLiability(@RequestBody Liability liability) {
-		liabilityRepo.updateLiability(liability.getDescription(), liability.getAmount(), liability.getId());
-	}
-	
-	@RequestMapping(value="/deleteSelectedLiability", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private void deleteSelectedLiability(Integer id) {
-		liabilityRepo.deleteById(id);
-	}
-	
-	@RequestMapping(value="/findAllLiabilities", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private ResponseEntity<List<Liability>> findAllLiabilities() {
-		List<Liability> liabilities = liabilityRepo.findAll();
-		return new ResponseEntity<>(liabilities, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value="/sumLiabilityValues", 
-			 produces=MediaType.APPLICATION_JSON_VALUE,
-			 method= RequestMethod.GET)
-	@ResponseBody
-	private ResponseEntity<Long> liabilityTotal() {
-		Long liabilitySum = liabilityRepo.liabilityTotal();
-		return new ResponseEntity<>(liabilitySum, HttpStatus.OK);
-	}
-
 }
